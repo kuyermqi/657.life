@@ -1,84 +1,68 @@
+:root {
+  --font-body: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-heading: var(--font-body);
+  --font-mono: "JetBrains Mono", "Fira Code", Consolas, monospace;
+
+  --color-text: #1a1a1a;
+  --color-text-secondary: #555;
+  --color-text-tertiary: #888;
+  --color-bg: #fafaf9;
+  --color-surface: #fff;
+  --color-border: #e5e5e3;
+  --color-link: #1a1a1a;
+  --color-link-hover: #555;
+  --color-code-bg: #f4f4f2;
+
+  --width-content: 640px;
+  --width-page: 720px;
+
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --space-2xl: 5rem;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 html {
-  --at-apply: 'bg-background c-secondary antialiased';
-  scrollbar-width: thin;
-  scrollbar-color: oklch(var(--un-preset-theme-colors-secondary) / 0.25) transparent;
-  scrollbar-gutter: stable;
+  font-size: 18px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-/* Fix Flash Issue On iOS */
 body {
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-body::selection {
-  --at-apply: 'bg-highlight';
-}
-
-/* Fix KaTeX Overflow with Hidden Scrollbar */
-.katex-display {
-  --at-apply: 'my-6 overflow-x-auto overflow-y-hidden scrollbar-hidden';
-}
-.katex-display::-webkit-scrollbar {
-  display: none;
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  line-height: 1.7;
 }
 
-/* Highlight Hover Animation >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
-.highlight-static,
-.highlight-hover {
-  --at-apply: 'relative inline-block';
-}
-.highlight-static::after,
-.highlight-hover::after {
-  --at-apply: 'absolute left-0 z--1 h-0.5em w-full bg-highlight';
-  content: '';
-}
-.highlight-static::after,
-.highlight-hover:hover::after {
-  --at-apply: 'origin-bottom-left scale-x-100';
-}
-.highlight-hover::after {
-  --at-apply: 'origin-bottom-right scale-x-0 transition-transform ease-out lg:duration-300';
+a {
+  color: var(--color-link);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
 }
 
-/* Heading Anchor Link >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
-.heading-anchor-link {
-  --at-apply: 'inline-block translate-y-0.1em';
-}
-h1:hover .heading-anchor-link svg,
-h2:hover .heading-anchor-link svg,
-h3:hover .heading-anchor-link svg,
-h4:hover .heading-anchor-link svg {
-  --at-apply: 'op-40';
-}
-.heading-anchor-link svg {
-  --at-apply: 'ml-0.4em aspect-square w-0.9em op-0 transition-opacity ease-out active:scale-90';
-}
-h1:hover .heading-anchor-link svg:hover,
-h2:hover .heading-anchor-link svg:hover,
-h3:hover .heading-anchor-link svg:hover,
-h4:hover .heading-anchor-link svg:hover {
-  --at-apply: 'op-80';
+a:hover {
+  color: var(--color-link-hover);
 }
 
-/* Code Copy Button >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
-.code-copy-button {
-  --at-apply: 'absolute right-2.2 top-2.2 z-99 aspect-square w-8 cursor-pointer uno-round-border border-secondary/15';
-  --at-apply: 'bg-background c-secondary/80 op-0 hover:(border-primary/15 c-primary/80)';
-  transition: opacity 300ms ease-out, background-color 150ms ease-out;
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
 }
-.code-block-wrapper:hover .code-copy-button {
-  --at-apply: 'op-100';
-}
-.code-copy-button.copy-success {
-  --at-apply: 'border-none bg-emerald-600 c-background';
-}
-html.dark .code-copy-button.copy-success {
-  --at-apply: 'bg-emerald-500';
-}
-.code-copy-button svg {
-  --at-apply: 'mx-auto aspect-square w-50%';
-}
-.code-copy-button svg,
-.code-copy-button svg path {
-  --at-apply: 'pointer-events-none';
+
+::selection {
+  background-color: #d4d4d0;
 }
