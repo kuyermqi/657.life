@@ -6,19 +6,43 @@ interface Props {
   title: string;
   date: Date;
   description: string;
+  categories: string[];
+  tags: string[];
 }
 
-const { title, date } = Astro.props;
+const { title, date, categories, tags } = Astro.props;
 
-const formattedDate = `${date.getFullYear()} 年 ${date.getMonth() + 1} 月 ${date.getDate()} 日`;
+const formattedDate = date.toLocaleDateString("en", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+const taxonomyHref = (type: "category" | "tag", value: string) =>
+  `/list?${type}=${encodeURIComponent(value)}`;
 ---
 
 <article class="article">
   <header class="article-header">
     <Heading as="h1">{title}</Heading>
     <p class="article-meta">
-      <time datetime={date.toISOString()} data-i18n-date>{formattedDate}</time>
+      <time datetime={date.toISOString()}>{formattedDate}</time>
     </p>
+    {(categories.length > 0 || tags.length > 0) && (
+      <div class="article-taxonomy">
+        {categories.length > 0 && (
+          <p>
+            <span class="taxonomy-label">Categories:</span>
+            {categories.map((category) => <a href={taxonomyHref("category", category)}>{category}</a>)}
+          </p>
+        )}
+        {tags.length > 0 && (
+          <p>
+            <span class="taxonomy-label">Tags:</span>
+            {tags.map((tag) => <a href={taxonomyHref("tag", tag)}>{tag}</a>)}
+          </p>
+        )}
+      </div>
+    )}
   </header>
   <Prose>
     <slot />
@@ -39,5 +63,35 @@ const formattedDate = `${date.getFullYear()} 年 ${date.getMonth() + 1} 月 ${da
     font-size: 0.8125rem;
     color: var(--color-text-tertiary);
     margin-top: var(--space-sm);
+  }
+
+  .article-taxonomy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    margin-top: var(--space-md);
+    font-family: var(--font-heading);
+    font-size: 0.8125rem;
+    color: var(--color-text-tertiary);
+  }
+
+  .article-taxonomy p {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs) var(--space-sm);
+    align-items: baseline;
+  }
+
+  .taxonomy-label {
+    color: var(--color-text-tertiary);
+  }
+
+  .article-taxonomy a {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+  }
+
+  .article-taxonomy a:hover {
+    color: var(--color-text);
   }
 </style>

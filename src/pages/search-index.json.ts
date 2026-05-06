@@ -18,6 +18,8 @@ export async function GET() {
       title: post.data.title,
       description: post.data.description,
       date: post.data.date.toISOString(),
+      categories: post.data.categories,
+      tags: post.data.tags,
       body,
     };
   });

@@ -1,0 +1,132 @@
+---
+import Layout from "../components/Layout.astro";
+import Heading from "../components/Heading.astro";
+import PostList from "../components/PostList.astro";
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+
+type Post = CollectionEntry<"posts">;
+
+const posts = (await getCollection("posts")).sort(
+  (a: Post, b: Post) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+---
+
+<Layout
+  title="List - 657.life"
+  description="Browse posts on 657.life by category and tag."
+>
+  <script is:inline>
+    (() => {
+      const params = new URLSearchParams(window.location.search);
+      const hasFilter = params.get("category")?.trim() || params.get("tag")?.trim();
+      if (hasFilter) {
+        document.documentElement.classList.add("list-filter-pending");
+      }
+    })();
+  </script>
+  <section class="list-page">
+    <Heading as="h1"><span id="list-heading">Posts</span></Heading>
+    <PostList posts={posts} filterable />
+    <p id="list-empty" class="list-empty" hidden>No posts found.</p>
+  </section>
+
+  <script is:inline>
+    (() => {
+      const labels = {
+        heading: "Posts",
+        categoryLabel: "Category: ",
+        tagLabel: "Tag: ",
+      };
+
+      const heading = document.getElementById("list-heading");
+      const emptyMsg = document.getElementById("list-empty");
+      const items = Array.from(document.querySelectorAll("[data-post-item]"));
+
+      function getFilter() {
+        const params = new URLSearchParams(window.location.search);
+        const category = params.get("category")?.trim();
+        const tag = params.get("tag")?.trim();
+
+        if (category) {
+          return { type: "category", value: category };
+        }
+
+        if (tag) {
+          return { type: "tag", value: tag };
+        }
+
+        return null;
+      }
+
+      function parseList(value) {
+        if (!value) return [];
+
+        try {
+          const parsed = JSON.parse(value);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function matchesFilter(item, filter) {
+        if (!filter) return true;
+
+        const values = parseList(filter.type === "category" ? item.dataset.categories : item.dataset.tags);
+        return values.includes(filter.value);
+      }
+
+      function renderHeading(filter) {
+        if (!heading) return;
+
+        if (!filter) {
+          heading.textContent = labels.heading;
+          return;
+        }
+
+        const prefix = filter.type === "category" ? labels.categoryLabel : labels.tagLabel;
+        heading.textContent = `${prefix}${filter.value}`;
+      }
+
+      function applyFilter() {
+        const filter = getFilter();
+        let visibleCount = 0;
+
+        for (const item of items) {
+          const isVisible = matchesFilter(item, filter);
+          item.hidden = !isVisible;
+          if (isVisible) {
+            visibleCount += 1;
+          }
+        }
+
+        if (emptyMsg) {
+          emptyMsg.hidden = visibleCount > 0;
+        }
+
+        renderHeading(filter);
+        document.documentElement.classList.remove("list-filter-pending");
+      }
+
+      applyFilter();
+    })();
+  </script>
+</Layout>
+
+<style>
+  :global(html.list-filter-pending) .list-page {
+    visibility: hidden;
+  }
+
+  .list-page {
+    max-width: var(--width-content);
+  }
+
+  .list-empty {
+    font-family: var(--font-heading);
+    font-size: 0.875rem;
+    color: var(--color-text-tertiary);
+    margin-top: var(--space-lg);
+  }
+</style>

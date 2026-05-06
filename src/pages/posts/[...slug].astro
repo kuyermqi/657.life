@@ -25,6 +25,7 @@ const jsonLd = {
   "headline": post.data.title,
   "description": post.data.description,
   "datePublished": post.data.date.toISOString(),
+  "keywords": [...post.data.categories, ...post.data.tags].join(", "),
   "url": postUrl,
   "mainEntityOfPage": {
     "@type": "WebPage",
@@ -44,7 +45,13 @@ const jsonLd = {
 
 <Layout title={`${post.data.title} — 657.life`} description={post.data.description} ogType="article">
   <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
-  <Article title={post.data.title} date={post.data.date} description={post.data.description}>
+  <Article
+    title={post.data.title}
+    date={post.data.date}
+    description={post.data.description}
+    categories={post.data.categories}
+    tags={post.data.tags}
+  >
     <Content />
   </Article>
 </Layout>
