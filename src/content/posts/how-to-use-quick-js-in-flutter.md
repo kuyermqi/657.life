@@ -2,6 +2,14 @@
 title: 如何在 Flutter 中使用 QuickJS
 description: 这篇文章介绍如何在 Flutter 中嵌入 QuickJS，包括如何编 Windows 和 Android 的运行库以及调用 QuickJs 运行 JavaScript 代码。
 date: 2023-11-02
+categories:
+  - 技术
+tags:
+  - QuickJS
+  - Flutter
+  - Dart FFI
+  - Android
+  - Windows
 ---
 
 ## 1. QuickJS 介绍
