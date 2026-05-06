@@ -5,8 +5,9 @@ const currentPath = Astro.url.pathname;
 <nav class="nav">
   <a href="/" class="nav-brand">657.life</a>
   <div class="nav-links">
-    <a href="/search" class:list={[{ active: currentPath === "/search" || currentPath === "/search/" }]}>搜索</a>
+    <a href="/search" class:list={[{ active: currentPath === "/search" || currentPath === "/search/" }]} data-i18n="nav.search">搜索</a>
     <a href="/rss.xml">RSS</a>
+    <button type="button" class="language-toggle" data-language-toggle aria-label="切换到英文" title="切换到英文">EN</button>
   </div>
 </nav>
 
@@ -35,18 +36,30 @@ const currentPath = Astro.url.pathname;
 
   .nav-links {
     display: flex;
+    align-items: baseline;
     gap: var(--space-lg);
   }
 
-  .nav-links a {
+  .nav-links a,
+  .language-toggle {
     font-family: var(--font-heading);
     font-size: 0.8125rem;
     color: var(--color-text-secondary);
     text-decoration: none;
   }
 
+  .language-toggle {
+    min-width: 2em;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    line-height: inherit;
+  }
+
   .nav-links a:hover,
-  .nav-links a.active {
+  .nav-links a.active,
+  .language-toggle:hover {
     color: var(--color-text);
   }
 </style>

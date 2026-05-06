@@ -8,6 +8,8 @@ interface Props {
   description?: string;
   ogType?: "website" | "article";
   ogImage?: string;
+  titleI18nKey?: string;
+  descriptionI18nKey?: string;
 }
 
 const {
@@ -15,34 +17,67 @@ const {
   description = "今日无事发生",
   ogType = "website",
   ogImage,
+  titleI18nKey,
+  descriptionI18nKey,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const googleVerification = import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION;
+const titleI18nAttrs = titleI18nKey ? { "data-i18n-title": titleI18nKey } : {};
+const descriptionI18nAttrs = descriptionI18nKey
+  ? { "data-i18n-content": descriptionI18nKey }
+  : {};
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-lang="zh">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     {googleVerification && <meta name="google-site-verification" content={googleVerification} />}
-    <title>{title}</title>
-    <meta name="description" content={description} />
+    <script is:inline>
+      (() => {
+        const isLanguage = (value) => value === "zh" || value === "en";
+        const getSystemLanguage = () => {
+          const languages = navigator.languages?.length ? navigator.languages : [navigator.language];
+          const preferredLanguage = languages.find((language) => {
+            const normalizedLanguage = language.toLowerCase();
+            return normalizedLanguage.startsWith("zh") || normalizedLanguage.startsWith("en");
+          });
+          return preferredLanguage?.toLowerCase().startsWith("zh") ? "zh" : "en";
+        };
+
+        let savedLanguage = null;
+        try {
+          savedLanguage = localStorage.getItem("657.life.language");
+        } catch {
+          savedLanguage = null;
+        }
+
+        const language = isLanguage(savedLanguage) ? savedLanguage : getSystemLanguage();
+        document.documentElement.lang = language === "en" ? "en" : "zh-CN";
+        document.documentElement.dataset.lang = language;
+        if (language === "en") {
+          document.documentElement.classList.add("i18n-pending");
+        }
+      })();
+    </script>
+    <title {...titleI18nAttrs}>{title}</title>
+    <meta name="description" content={description} {...descriptionI18nAttrs} />
     <link rel="canonical" href={canonicalURL.href} />
 
     <!-- Open Graph -->
     <meta property="og:type" content={ogType} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:title" content={title} {...(titleI18nKey ? { "data-i18n-content": titleI18nKey } : {})} />
+    <meta property="og:description" content={description} {...descriptionI18nAttrs} />
     <meta property="og:url" content={canonicalURL.href} />
     <meta property="og:site_name" content="657.life" />
     {ogImage && <meta property="og:image" content={ogImage} />}
 
     <!-- Twitter -->
     <meta name="twitter:card" content={ogImage ? "summary_large_image" : "summary"} />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
+    <meta name="twitter:title" content={title} {...(titleI18nKey ? { "data-i18n-content": titleI18nKey } : {})} />
+    <meta name="twitter:description" content={description} {...descriptionI18nAttrs} />
     {ogImage && <meta name="twitter:image" content={ogImage} />}
 
     <!-- JSON-LD -->
@@ -52,7 +87,7 @@ const googleVerification = import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION;
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200..900&family=JetBrains+Mono:wght@400&display=swap"
       rel="stylesheet"
     />
   </head>
@@ -64,6 +99,167 @@ const googleVerification = import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION;
       </main>
       <Footer />
     </div>
+    <script>
+      const storageKey = "657.life.language";
+      const languageLabels = {
+        zh: "zh-CN",
+        en: "en",
+      } as const;
+      const translations = {
+        zh: {
+          "nav.search": "搜索",
+          "nav.languageButton": "EN",
+          "nav.languageLabel": "切换到英文",
+          "home.title": "你好，我是 657",
+          "home.tagline": "今日无事发生",
+          "home.metaTitle": "657.life",
+          "home.metaDescription": "657 的无聊生活",
+          "search.heading": "搜索",
+          "search.placeholder": "搜索文章...",
+          "search.empty": "没有找到相关文章。",
+          "search.metaTitle": "搜索 - 657.life",
+          "search.metaDescription": "搜索 657.life 上的文章。",
+        },
+        en: {
+          "nav.search": "Search",
+          "nav.languageButton": "中",
+          "nav.languageLabel": "Switch to Chinese",
+          "home.title": "Hi, I'm 657",
+          "home.tagline": "Nothing happened today.",
+          "home.metaTitle": "657.life",
+          "home.metaDescription": "The boring life of 657",
+          "search.heading": "Search",
+          "search.placeholder": "Search posts...",
+          "search.empty": "No posts found.",
+          "search.metaTitle": "Search - 657.life",
+          "search.metaDescription": "Search posts on 657.life.",
+        },
+      } as const;
+
+      type Language = keyof typeof translations;
+      type TranslationKey = keyof typeof translations.zh;
+
+      function isLanguage(value: string | null): value is Language {
+        return value === "zh" || value === "en";
+      }
+
+      function getManualLanguage(): Language | null {
+        try {
+          const saved = localStorage.getItem(storageKey);
+          return isLanguage(saved) ? saved : null;
+        } catch {
+          return null;
+        }
+      }
+
+      function getSystemLanguage(): Language {
+        const languages = navigator.languages?.length ? navigator.languages : [navigator.language];
+        const preferredLanguage = languages.find((language) => {
+          const normalizedLanguage = language.toLowerCase();
+          return normalizedLanguage.startsWith("zh") || normalizedLanguage.startsWith("en");
+        });
+        return preferredLanguage?.toLowerCase().startsWith("zh") ? "zh" : "en";
+      }
+
+      function getPreferredLanguage(): Language {
+        return getManualLanguage() ?? getSystemLanguage();
+      }
+
+      function saveLanguage(language: Language): void {
+        try {
+          localStorage.setItem(storageKey, language);
+        } catch {
+          // Ignore storage failures so the toggle still works for the current page.
+        }
+      }
+
+      function getTranslation(language: Language, key: string): string | undefined {
+        return translations[language][key as TranslationKey];
+      }
+
+      function formatChineseDate(date: Date): string {
+        return `${date.getFullYear()} 年 ${date.getMonth() + 1} 月 ${date.getDate()} 日`;
+      }
+
+      function formatDate(iso: string, language: Language): string {
+        const date = new Date(iso);
+        if (language === "zh") {
+          return formatChineseDate(date);
+        }
+
+        return date.toLocaleDateString(languageLabels.en, {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+      }
+
+      function applyLanguage(language: Language, shouldPersist = false): void {
+        if (shouldPersist) {
+          saveLanguage(language);
+        }
+
+        document.documentElement.lang = languageLabels[language];
+        document.documentElement.dataset.lang = language;
+
+        document.querySelectorAll("[data-i18n]").forEach((element) => {
+          const key = element.getAttribute("data-i18n");
+          const value = key ? getTranslation(language, key) : undefined;
+          if (value) {
+            element.textContent = value;
+          }
+        });
+
+        document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
+          const key = element.getAttribute("data-i18n-placeholder");
+          const value = key ? getTranslation(language, key) : undefined;
+          if (value && element instanceof HTMLInputElement) {
+            element.placeholder = value;
+          }
+        });
+
+        document.querySelectorAll("[data-i18n-title]").forEach((element) => {
+          const key = element.getAttribute("data-i18n-title");
+          const value = key ? getTranslation(language, key) : undefined;
+          if (value) {
+            element.textContent = value;
+          }
+        });
+
+        document.querySelectorAll("[data-i18n-content]").forEach((element) => {
+          const key = element.getAttribute("data-i18n-content");
+          const value = key ? getTranslation(language, key) : undefined;
+          if (value) {
+            element.setAttribute("content", value);
+          }
+        });
+
+        document.querySelectorAll("time[data-i18n-date]").forEach((element) => {
+          const iso = element.getAttribute("datetime");
+          if (iso) {
+            element.textContent = formatDate(iso, language);
+          }
+        });
+
+        document.querySelectorAll("[data-language-toggle]").forEach((element) => {
+          element.textContent = translations[language]["nav.languageButton"];
+          element.setAttribute("aria-label", translations[language]["nav.languageLabel"]);
+          element.setAttribute("title", translations[language]["nav.languageLabel"]);
+        });
+
+        document.documentElement.classList.remove("i18n-pending");
+        window.dispatchEvent(new CustomEvent("i18n:change", { detail: { language } }));
+      }
+
+      applyLanguage(getPreferredLanguage());
+
+      document.querySelectorAll("[data-language-toggle]").forEach((element) => {
+        element.addEventListener("click", () => {
+          const currentLanguage = document.documentElement.dataset.lang === "en" ? "en" : "zh";
+          applyLanguage(currentLanguage === "zh" ? "en" : "zh", true);
+        });
+      });
+    </script>
   </body>
 </html>
 

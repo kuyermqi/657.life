@@ -11,33 +11,34 @@ const posts = (await getCollection("posts")).sort(
 );
 ---
 
-<Layout title="657.life" description="The boring life of 657">
+<Layout
+  title="657.life"
+  description="657 的无聊生活"
+  titleI18nKey="home.metaTitle"
+  descriptionI18nKey="home.metaDescription"
+>
   <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "657.life",
-    "description": "The boring life of 657",
+    "description": "657 的无聊生活",
     "url": Astro.site?.href,
   })} />
   <section class="home">
     <header class="home-header">
-      <Heading as="h1">Hi, I'm 657</Heading>
-      <p class="home-tagline">今日无事发生</p>
+      <Heading as="h1"><span data-i18n="home.title">你好，我是 657</span></Heading>
+      <p class="home-tagline" data-i18n="home.tagline">今日无事发生</p>
     </header>
     <ul class="post-list">
       {
         posts.map((post: Post) => {
-          const formattedDate = post.data.date.toLocaleDateString("zh-CN", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          });
+          const formattedDate = `${post.data.date.getFullYear()} 年 ${post.data.date.getMonth() + 1} 月 ${post.data.date.getDate()} 日`;
           return (
             <li class="post-item">
               <a href={`/posts/${post.id}`}>
                 <span class="post-title">{post.data.title}</span>
                 <span class="post-description">{post.data.description}</span>
-                <time datetime={post.data.date.toISOString()}>{formattedDate}</time>
+                <time datetime={post.data.date.toISOString()} data-i18n-date>{formattedDate}</time>
               </a>
             </li>
           );

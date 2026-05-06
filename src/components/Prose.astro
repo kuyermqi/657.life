@@ -76,6 +76,27 @@
     overflow-x: auto;
     margin: 1.5em 0;
     line-height: 1.5;
+    scrollbar-color: #c9c9c2 transparent;
+    scrollbar-width: thin;
+  }
+
+  .prose :global(pre)::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  .prose :global(pre)::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .prose :global(pre)::-webkit-scrollbar-thumb {
+    background-color: #c9c9c2;
+    border: 3px solid var(--color-code-bg);
+    border-radius: 999px;
+  }
+
+  .prose :global(pre)::-webkit-scrollbar-thumb:hover {
+    background-color: #adada6;
   }
 
   .prose :global(pre code) {

@@ -10,18 +10,14 @@ interface Props {
 
 const { title, date } = Astro.props;
 
-const formattedDate = date.toLocaleDateString("zh-CN", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
+const formattedDate = `${date.getFullYear()} 年 ${date.getMonth() + 1} 月 ${date.getDate()} 日`;
 ---
 
 <article class="article">
   <header class="article-header">
     <Heading as="h1">{title}</Heading>
     <p class="article-meta">
-      <time datetime={date.toISOString()}>{formattedDate}</time>
+      <time datetime={date.toISOString()} data-i18n-date>{formattedDate}</time>
     </p>
   </header>
   <Prose>
