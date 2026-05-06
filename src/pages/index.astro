@@ -1,6 +1,6 @@
 ---
 import Layout from "../components/Layout.astro";
-import Heading from "../components/Heading.astro";
+import PostList from "../components/PostList.astro";
 import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 
@@ -13,99 +13,16 @@ const posts = (await getCollection("posts")).sort(
 
 <Layout
   title="657.life"
-  description="657 的无聊生活"
-  titleI18nKey="home.metaTitle"
-  descriptionI18nKey="home.metaDescription"
+  description="The boring life of 657"
 >
   <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "657.life",
-    "description": "657 的无聊生活",
+    "description": "The boring life of 657",
     "url": Astro.site?.href,
   })} />
   <section class="home">
-    <header class="home-header">
-      <Heading as="h1"><span data-i18n="home.title">你好，我是 657</span></Heading>
-      <p class="home-tagline" data-i18n="home.tagline">今日无事发生</p>
-    </header>
-    <ul class="post-list">
-      {
-        posts.map((post: Post) => {
-          const formattedDate = `${post.data.date.getFullYear()} 年 ${post.data.date.getMonth() + 1} 月 ${post.data.date.getDate()} 日`;
-          return (
-            <li class="post-item">
-              <a href={`/posts/${post.id}`}>
-                <span class="post-title">{post.data.title}</span>
-                <span class="post-description">{post.data.description}</span>
-                <time datetime={post.data.date.toISOString()} data-i18n-date>{formattedDate}</time>
-              </a>
-            </li>
-          );
-        })
-      }
-    </ul>
+    <PostList posts={posts} flushTop />
   </section>
 </Layout>
-
-<style>
-  .home-header {
-    margin-bottom: var(--space-2xl);
-  }
-
-  .home-tagline {
-    font-family: var(--font-body);
-    font-size: 1rem;
-    color: var(--color-text-secondary);
-    margin-top: var(--space-sm);
-  }
-
-  .post-list {
-    list-style: none;
-    padding: 0;
-  }
-
-  .post-item {
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .post-item:first-child {
-    border-top: 1px solid var(--color-border);
-  }
-
-  .post-item a {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-xs);
-    padding: var(--space-lg) 0;
-    text-decoration: none;
-    color: var(--color-text);
-  }
-
-  .post-item a:hover .post-title {
-    color: var(--color-text-secondary);
-  }
-
-  .post-title {
-    font-family: var(--font-heading);
-    font-size: 1.125rem;
-    font-weight: 600;
-    letter-spacing: 0;
-    line-height: 1.3;
-    transition: color 0.15s ease;
-  }
-
-  .post-description {
-    font-family: var(--font-body);
-    font-size: 0.9375rem;
-    color: var(--color-text-secondary);
-    line-height: 1.5;
-  }
-
-  .post-item time {
-    font-family: var(--font-heading);
-    font-size: 0.75rem;
-    color: var(--color-text-tertiary);
-    margin-top: var(--space-xs);
-  }
-</style>

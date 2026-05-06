@@ -13,8 +13,9 @@
   --color-link-hover: #555;
   --color-code-bg: #f4f4f2;
 
-  --width-content: 640px;
-  --width-page: 720px;
+  --width-content: 720px;
+  --width-sidebar: 240px;
+  --width-page: 1120px;
 
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
@@ -44,13 +45,6 @@ body {
   color: var(--color-text);
   background-color: var(--color-bg);
   line-height: 1.7;
-}
-
-html.i18n-pending [data-i18n],
-html.i18n-pending [data-i18n-placeholder],
-html.i18n-pending [data-i18n-date],
-html.i18n-pending [data-language-toggle] {
-  visibility: hidden;
 }
 
 a {

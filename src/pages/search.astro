@@ -4,25 +4,22 @@ import Heading from "../components/Heading.astro";
 ---
 
 <Layout
-  title="搜索 - 657.life"
-  description="搜索 657.life 上的文章。"
-  titleI18nKey="search.metaTitle"
-  descriptionI18nKey="search.metaDescription"
+  title="Search - 657.life"
+  description="Search posts on 657.life."
 >
   <section class="search-page">
-    <Heading as="h1"><span data-i18n="search.heading">搜索</span></Heading>
+    <Heading as="h1">Search</Heading>
     <div class="search-input-wrap">
       <input
         type="text"
         id="search-input"
-        placeholder="搜索文章..."
-        data-i18n-placeholder="search.placeholder"
+        placeholder="Search posts..."
         autocomplete="off"
         autofocus
       />
     </div>
     <ul id="search-results" class="search-results"></ul>
-    <p id="search-empty" class="search-empty" data-i18n="search.empty" hidden>没有找到相关文章。</p>
+    <p id="search-empty" class="search-empty" hidden>No posts found.</p>
   </section>
 </Layout>
 
@@ -32,6 +29,8 @@ import Heading from "../components/Heading.astro";
     title: string;
     description: string;
     date: string;
+    categories: string[];
+    tags: string[];
     body: string;
   }
 
@@ -54,21 +53,19 @@ import Heading from "../components/Heading.astro";
     if (terms.length === 0) return [];
 
     return index.filter((entry) => {
-      const haystack = `${entry.title} ${entry.description} ${entry.body}`.toLowerCase();
+      const haystack = [
+        entry.title,
+        entry.description,
+        entry.categories.join(" "),
+        entry.tags.join(" "),
+        entry.body,
+      ].join(" ").toLowerCase();
       return terms.every((term) => haystack.includes(term));
     });
   }
 
-  function formatChineseDate(date: Date): string {
-    return `${date.getFullYear()} 年 ${date.getMonth() + 1} 月 ${date.getDate()} 日`;
-  }
-
   function formatDate(iso: string): string {
     const date = new Date(iso);
-    if (document.documentElement.dataset.lang !== "en") {
-      return formatChineseDate(date);
-    }
-
     return date.toLocaleDateString("en", {
       year: "numeric",
       month: "long",
@@ -98,7 +95,7 @@ import Heading from "../components/Heading.astro";
         <a href="/posts/${entry.slug}">
           <span class="result-title">${entry.title}</span>
           <span class="result-description">${entry.description}</span>
-          <time datetime="${entry.date}" data-i18n-date>${formatDate(entry.date)}</time>
+          <time datetime="${entry.date}">${formatDate(entry.date)}</time>
         </a>
       `;
       resultsList.appendChild(li);
@@ -115,12 +112,6 @@ import Heading from "../components/Heading.astro";
       const results = search(query);
       render(results, query);
     }, 200);
-  });
-
-  window.addEventListener("i18n:change", () => {
-    if (!loaded || input.value.trim() === "") return;
-    const results = search(input.value);
-    render(results, input.value);
   });
 
   // Support ?q= query param
