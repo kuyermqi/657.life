@@ -45,6 +45,7 @@
       let cols = 1;
       let rows = 1;
       let rays = [];
+      let backgroundDots = [];
       let cssWidth = 1;
       let cssHeight = 1;
       let time = 0;
@@ -166,6 +167,35 @@
         return map(p).d;
       }
 
+      function createBackgroundDots() {
+        const targetGap = Math.max(8, Math.min(12, (cellH * 2) / 3));
+        const dotCols = Math.max(2, Math.floor(cssWidth / targetGap));
+        const dotRows = Math.max(2, Math.floor(cssHeight / targetGap));
+        const gapX = cssWidth / (dotCols + 1);
+        const gapY = cssHeight / (dotRows + 1);
+        backgroundDots = [];
+
+        for (let y = 1; y <= dotRows; y++) {
+          for (let x = 1; x <= dotCols; x++) {
+            backgroundDots.push({
+              x: x * gapX,
+              y: y * gapY,
+              radius: 0.8,
+              alpha: 0.2,
+            });
+          }
+        }
+      }
+
+      function drawBackgroundDots() {
+        for (const dot of backgroundDots) {
+          ctx.fillStyle = `rgba(51, 51, 51, ${dot.alpha})`;
+          ctx.beginPath();
+          ctx.arc(dot.x, dot.y, dot.radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
       function calcNormal(p) {
         const e = 0.005;
         const d = mapD(p);
@@ -227,6 +257,8 @@
           }
           rays.push(row);
         }
+
+        createBackgroundDots();
       }
 
       function getPointerDistance() {
@@ -356,6 +388,7 @@
         const background = getComputedStyle(decoration).backgroundColor || "#fafaf9";
         ctx.fillStyle = background;
         ctx.fillRect(0, 0, cssWidth, cssHeight);
+        drawBackgroundDots();
 
         const lightDir = normalize([0.8, 1.8, -1.2]);
 
