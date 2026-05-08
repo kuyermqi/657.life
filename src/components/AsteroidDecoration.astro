@@ -16,7 +16,12 @@
 
       const pPlanetRadius = 1.1;
       const pRingSize = 1;
-      let pCamDist = 3.5;
+      const AUTO_ROTATION_PERIOD_SECONDS = 60;
+      const AUTO_ROTATION_SPEED = (Math.PI * 2) / AUTO_ROTATION_PERIOD_SECONDS;
+      const AUTO_AXIS_SPEED = AUTO_ROTATION_SPEED / Math.sqrt(2);
+      const AUTO_YAW_SPEED = -AUTO_AXIS_SPEED;
+      const AUTO_PITCH_SPEED = AUTO_AXIS_SPEED;
+      let pCamDist = window.matchMedia("(max-width: 640px)").matches ? 7 : 3.5;
 
       let vRotX = 0;
       let vRotY = 0;
@@ -28,21 +33,22 @@
       let initialPinchDist = null;
 
       let initPitch = -0.5;
-      let initYaw = 0.96;
+      let initYaw = 0.6;
       let pitchMat = createRotationMatrix([1, 0, 0], initPitch);
       let yawMat = createRotationMatrix([0, 1, 0], initYaw);
       let rotMatrix = multiplyMatrix(pitchMat, yawMat);
 
-      const cellW = 8;
-      const cellH = 16;
       const CHARS = "@@%#*+=-:.  ";
       const activePointers = new Map();
+      let cellW = 8;
+      let cellH = 16;
       let cols = 1;
       let rows = 1;
       let rays = [];
       let cssWidth = 1;
       let cssHeight = 1;
       let time = 0;
+      let lastFrameMs = null;
 
       function multiplyMatrix(a, b) {
         let res = new Array(9);
@@ -112,6 +118,18 @@
         }
       }
 
+      function applyAutoRotation(deltaSeconds) {
+        if (deltaSeconds <= 0) {
+          return;
+        }
+
+        let pitchDelta = createRotationMatrix([1, 0, 0], AUTO_PITCH_SPEED * deltaSeconds);
+        let yawDelta = createRotationMatrix([0, 1, 0], AUTO_YAW_SPEED * deltaSeconds);
+        rotMatrix = multiplyMatrix(rotMatrix, pitchDelta);
+        rotMatrix = multiplyMatrix(rotMatrix, yawDelta);
+        rotMatrix = orthogonalize(rotMatrix);
+      }
+
       function dot(a, b) {
         return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
       }
@@ -172,6 +190,9 @@
 
       function updateCamera() {
         const rect = decoration.getBoundingClientRect();
+        const styles = getComputedStyle(decoration);
+        cellW = parseFloat(styles.getPropertyValue("--asteroid-cell-w")) || 8;
+        cellH = parseFloat(styles.getPropertyValue("--asteroid-cell-h")) || 16;
         cssWidth = Math.max(1, Math.floor(rect.width));
         cssHeight = Math.max(1, Math.floor(rect.height));
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -311,11 +332,18 @@
 
       function render(now) {
         time = now * 0.001;
+        const deltaSeconds = lastFrameMs === null ? 0 : Math.min((now - lastFrameMs) * 0.001, 0.05);
+        lastFrameMs = now;
 
         if (!isDragging && (Math.abs(vRotX) > 0.1 || Math.abs(vRotY) > 0.1)) {
           applyDrag(vRotX, vRotY);
           vRotX *= 0.92;
           vRotY *= 0.92;
+        }
+
+        const isAutoRotationPaused = isDragging || activePointers.size > 0 || Math.abs(vRotX) > 0.1 || Math.abs(vRotY) > 0.1;
+        if (!isAutoRotationPaused) {
+          applyAutoRotation(deltaSeconds);
         }
 
         if (Math.abs(vZoom) > 0.001 && initialPinchDist === null) {
@@ -437,6 +465,8 @@
 
 <style>
   .asteroid-decoration {
+    --asteroid-cell-w: 8;
+    --asteroid-cell-h: 16;
     width: 100%;
     height: clamp(180px, 28vw, 320px);
     overflow: hidden;
@@ -457,6 +487,8 @@
 
   @media (max-width: 640px) {
     .asteroid-decoration {
+      --asteroid-cell-w: 6;
+      --asteroid-cell-h: 12;
       height: 180px;
     }
   }
