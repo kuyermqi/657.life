@@ -1,4 +1,6 @@
 ---
+import Analytics from '@vercel/analytics/astro'
+
 import Nav from "./Nav.astro";
 import Footer from "./Footer.astro";
 import Sidebar from "./Sidebar.astro";
@@ -74,6 +76,8 @@ const hasAfterNav = Astro.slots.has("after-nav");
       </div>
       <Footer />
     </div>
+
+    <Analytics />
   </body>
 </html>
 
