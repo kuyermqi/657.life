@@ -20,6 +20,7 @@ const {
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const googleVerification = import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION;
+const hasAfterNav = Astro.slots.has("after-nav");
 ---
 
 <!doctype html>
@@ -58,8 +59,13 @@ const googleVerification = import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION;
     />
   </head>
   <body>
-    <div class="page">
+    <div class:list={["page", { "page-has-after-nav": hasAfterNav }]}>
       <Nav />
+      {hasAfterNav && (
+        <div class="after-nav">
+          <slot name="after-nav" />
+        </div>
+      )}
       <div class="page-content">
         <main>
           <slot />
@@ -93,6 +99,15 @@ const googleVerification = import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION;
     justify-content: space-between;
     align-items: start;
     flex: 1;
+    margin-top: var(--space-2xl);
+  }
+
+  .after-nav {
+    margin-top: var(--space-lg);
+  }
+
+  .page-has-after-nav .page-content {
+    margin-top: var(--space-xl);
   }
 
   @media (max-width: 900px) {
